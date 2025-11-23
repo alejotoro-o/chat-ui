@@ -1,3 +1,5 @@
 export { Message } from "./components/Message"
 export { MessageList } from "./components/MessageList"
 export { MessageBar } from "./components/MessageBar"
+export { ChatHeader } from "./components/ChatHeader"
+export { Chat } from "./components/Chat"
