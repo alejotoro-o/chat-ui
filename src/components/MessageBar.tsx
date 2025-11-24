@@ -6,13 +6,17 @@ type MessageBarProps = {
     placeholder?: string;
     className?: string;
     allowFiles?: boolean;
+    classNameAttachIcon?: string;
+    classNameSendIcon?: string;
 };
 
 export const MessageBar: React.FC<MessageBarProps> = ({
     onSend,
     placeholder,
     className,
-    allowFiles = true
+    allowFiles = true,
+    classNameAttachIcon,
+    classNameSendIcon
 }) => {
     const [value, setValue] = useState("");
     const [files, setFiles] = useState<File[]>([]);
@@ -26,6 +30,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
         if (!el) return;
         el.style.height = "auto";
         el.style.height = Math.min(el.scrollHeight, 160) + "px"; // ~8 lines
+        el.style.overflowY = el.scrollHeight > 160 ? "auto" : "hidden";
     };
 
     const resetHeight = () => {
@@ -228,11 +233,11 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                 {allowFiles && <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="aspect-square h-10 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer"
+                    className={cn("aspect-square h-10 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer text-gray-600", classNameAttachIcon)}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 text-gray-600"
+                        className="w-5 h-5"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -258,11 +263,11 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                 {(value || files.length > 0) && (
                     <button
                         type="submit"
-                        className="aspect-square h-10 self-end flex items-center justify-center rounded-full bg-black cursor-pointer"
+                        className={cn("aspect-square h-10 self-end flex items-center justify-center rounded-full bg-black cursor-pointer text-white", classNameSendIcon)}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-4 h-4 text-white"
+                            className="w-4 h-4"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"

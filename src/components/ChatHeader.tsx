@@ -12,7 +12,6 @@ type ChatHeaderProps = {
     name: string;
     profileLink?: string;
     imageUrl?: string;
-    imageAlt?: string;
     status?: string;
     className?: string;
     options?: ChatHeaderOption[]
@@ -22,7 +21,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     name,
     profileLink,
     imageUrl,
-    imageAlt,
     status,
     className,
     options
@@ -35,7 +33,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 <div className="aspect-square h-full rounded-full overflow-hidden border border-gray-300">
                     <img
                         src={imageUrl}
-                        alt={imageAlt}
+                        alt={name}
                         className="w-full h-full object-cover"
                     />
                 </div>
@@ -69,6 +67,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             {options && options.length > 0 && <div className="relative justify-self-end">
                 <button
                     type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={open}
                     onClick={() => setOpen(!open)}
                     className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"
                 >

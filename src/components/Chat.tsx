@@ -8,7 +8,7 @@ type ChatProps = {
 
 export const Chat: React.FC<ChatProps> = ({ children, className }) => {
     return (
-        <div className={cn("pb-1 bg-slate-100 max-h-dvh grid", className)}>
+        <div className={cn("pb-1 bg-slate-100 max-h-full flex flex-col", className)}>
             {children}
         </div>
     )

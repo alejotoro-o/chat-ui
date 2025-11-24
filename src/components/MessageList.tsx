@@ -4,11 +4,13 @@ import { cn } from "../utilities/ui";
 type MessageListProps = {
     children: React.ReactNode;
     className?: string;
+    classNameScrollButton?: string;
 };
 
 export const MessageList: React.FC<MessageListProps> = ({
     children,
     className,
+    classNameScrollButton
 }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
@@ -49,7 +51,7 @@ export const MessageList: React.FC<MessageListProps> = ({
     // --- 3. MANUAL SCROLL-TO-BOTTOM ACTION ---
     const scrollToBottom = () => {
         if (scrollRef.current) {
-            // ✅ Smooth Scroll applied here
+            // Smooth Scroll applied here
             scrollRef.current.scrollTo({
                 top: scrollRef.current.scrollHeight,
                 behavior: "smooth",
@@ -62,7 +64,6 @@ export const MessageList: React.FC<MessageListProps> = ({
             <div
                 ref={scrollRef}
                 onScroll={handleScroll}
-                // Tailwind classes for scrollable area
                 className={cn("grid overflow-y-auto h-full content-start", className)}
             >
                 {children}
@@ -71,7 +72,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             {showScrollButton && (
                 <button
                     onClick={scrollToBottom}
-                    className="absolute bottom-4 right-4 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 animate-in fade-in zoom-in cursor-pointer"
+                    className={cn("absolute bottom-4 right-4 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 animate-in fade-in zoom-in cursor-pointer", classNameScrollButton)}
                     aria-label="Scroll to bottom"
                 >
                     <svg

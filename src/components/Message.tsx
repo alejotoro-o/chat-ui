@@ -6,9 +6,9 @@ type MessageProps = {
     files?: { name: string; url: string; type: string }[];
     isMe: boolean;
     timestamp: Date;
-    bgColorMe?: string;
+    classNameMe?: string;
     textColorMe?: string;
-    bgColorOther?: string;
+    classNameOther?: string;
     textColorOther?: string;
     className?: string;
 };
@@ -18,10 +18,8 @@ export const Message: React.FC<MessageProps> = ({
     files = [],
     isMe,
     timestamp,
-    bgColorMe,
-    bgColorOther,
-    textColorMe,
-    textColorOther,
+    classNameMe,
+    classNameOther,
     className,
 }) => {
     const time = timestamp.toLocaleTimeString([], {
@@ -33,9 +31,10 @@ export const Message: React.FC<MessageProps> = ({
         <div
             className={cn(
                 "p-3 m-2 rounded-lg max-w-2/3 shadow-sm",
-                isMe ? "justify-self-end" : "justify-self-start",
-                isMe ? (bgColorMe || "bg-blue-100") : (bgColorOther || "bg-stone-100"),
-                isMe ? (textColorMe || "text-black") : (textColorOther || "text-black"),
+                isMe ?
+                    (`justify-self-end bg-blue-100 ${classNameMe}`)
+                    :
+                    (`justify-self-start bg-stone-100 ${classNameOther}`),
                 className
             )}
         >

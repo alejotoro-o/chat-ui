@@ -2,13 +2,14 @@ import type React from "react"
 import { cn } from "../utilities/ui"
 
 type ChatListProps = {
+    children: React.ReactNode
     className?: string
 }
 
-export const ChatList: React.FC<ChatListProps> = ({ className }) => {
+export const ChatList: React.FC<ChatListProps> = ({ children, className }) => {
     return (
-        <div className={cn("", className)}>
-
+        <div className={cn("flex flex-col gap-2", className)}>
+            {children}
         </div>
     )
 }
