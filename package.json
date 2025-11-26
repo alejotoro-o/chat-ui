@@ -1,7 +1,7 @@
 {
     "name": "@alejotoro-o/chat-ui",
-    "version": "1.1.2",
-    "description": "This package provides useful frontend chat UI components.",
+    "version": "1.0.0",
+    "description": "This package provides a set of frontend components designed to help you quickly build modern, responsive chat interfaces. It focuses on flexibility, developer experience, and seamless integration with any backend.",
     "keywords": [],
     "license": "MIT",
     "author": "Alejandro Toro Ossaba",

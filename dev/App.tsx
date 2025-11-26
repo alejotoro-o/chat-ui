@@ -5,6 +5,7 @@ import {
     ChatItem,
     ChatList,
     DateDivider,
+    formatDate,
     Message,
     MessageBar,
     MessageList,
@@ -83,6 +84,7 @@ function App() {
             <Chat className="flex-1">
                 <ChatHeader
                     name="User A"
+                    onClick={() => console.log('User A clicked')}
                     status="Online"
                     options={[
                         { label: "Clear Chat", onClick: clearChat },
@@ -151,10 +153,3 @@ function App() {
 }
 
 export default App;
-
-const formatDate = (date: Date) =>
-    date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    });

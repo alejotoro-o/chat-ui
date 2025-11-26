@@ -7,10 +7,9 @@ type ChatHeaderOption = {
     destructive?: boolean; // optional flag for styling (e.g. red text for delete)
 };
 
-
 type ChatHeaderProps = {
     name: string;
-    profileLink?: string;
+    onClick?: () => void;
     imageUrl?: string;
     status?: string;
     className?: string;
@@ -19,7 +18,7 @@ type ChatHeaderProps = {
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
     name,
-    profileLink,
+    onClick,
     imageUrl,
     status,
     className,
@@ -54,10 +53,17 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             )}
         >
             {/* Left side: avatar + name */}
-            {profileLink ? (
-                <a href={profileLink} className="grow flex flex-row gap-5 items-center h-20 py-4">
+            {onClick ? (
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClick();
+                    }}
+                    className="grow flex flex-row gap-5 items-center h-20 py-4 text-left cursor-pointer"
+                >
                     {avatarBlock}
-                </a>
+                </button>
             ) : (
                 avatarBlock
             )}
