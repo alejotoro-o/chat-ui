@@ -154,9 +154,6 @@ const clearChat = () => {
 - Extend functionality by passing callbacks (`onSend`, `onClick`, etc.) to integrate with any backend.  
 - File support is built in — drag‑and‑drop, paste, or select files directly in the message bar.
 
-
-Got it 👍 — here’s a refined **Components Overview** section in Markdown. I’ve removed the “Purpose” and “Usage notes” headings and instead added a short prose paragraph at the beginning of each component to explain what it does. Each prop is still documented clearly.
-
 ## Components Overview
 
 This package provides the following components:
