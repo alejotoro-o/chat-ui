@@ -105,6 +105,7 @@ function App() {
                                     files={msg.files}
                                     isMe={msg.sender === "UserA"}
                                     timestamp={msg.timestamp}
+                                    status="sent"
                                 />
                             </React.Fragment>
                         );
@@ -114,9 +115,11 @@ function App() {
                     onSend={(payload) => sendMessage(payload, "UserA")} // User A sends
                     allowedFiles="image/*,.pdf"
                     maxFiles={2}
+                    maxFileSize={1}
                     errorMessage={{
                         invalidType: "This file type is not allowed",
-                        maxFiles: "Max files reached"
+                        maxFiles: "Max files reached",
+                        maxSize: "File is bigger than 1 MB"
                     }}
                 />
             </Chat>

@@ -210,21 +210,29 @@ type MessageProps = {
     files?: { name: string; url: string; type: string }[];
     isMe: boolean;
     timestamp: Date;
+    status?: "sending" | "sent" | "delivered" | "read";
     classNameMe?: string;
     textColorMe?: string;
     classNameOther?: string;
     textColorOther?: string;
+    classNameRead?: string;
     className?: string;
 };
 ```
 
-- **text:** Message text content.
-- **files:** Array of file attachments with preview URLs.
-- **isMe:** Whether the message belongs to the current user.
-- **timestamp:** Date object used for display and grouping.
-- **classNameMe / textColorMe:** Styles for the “me” bubble and text.
-- **classNameOther / textColorOther:** Styles for the “other” bubble and text.
-- **className:** Styles for the outer wrapper.
+- **text:** Message text content.  
+- **files:** Array of file attachments with preview URLs.  
+- **isMe:** Whether the message belongs to the current user.  
+- **timestamp:** Date object used for display and grouping.  
+- **status:** Current delivery state of the message.  
+  - `"sending"`: Message is being sent.  
+  - `"sent"`: Message successfully sent.  
+  - `"delivered"`: Message has been received by the recipient.  
+  - `"read"`: Recipient has opened the chat and seen the message.  
+- **classNameMe / textColorMe:** Styles for the “me” bubble and text.  
+- **classNameOther / textColorOther:** Styles for the “other” bubble and text.  
+- **classNameRead:** Styles applied when the message status is `"read"`.  
+- **className:** Styles for the outer wrapper.  
 
 ### `MessageList`
 
@@ -252,28 +260,32 @@ type MessageBarProps = {
     placeholder?: string;
     className?: string;
     allowFiles?: boolean;
-    allowedFiles?: string,
-    maxFiles?: number,
+    allowedFiles?: string;
+    maxFiles?: number;
+    maxFileSize?: number;
     errorMessage?: {
-        invalidType: string,
-        maxFiles: string,
-    },
+        invalidType?: string;
+        maxFiles?: string;
+        maxSize?: string;
+    };
     classNameAttachIcon?: string;
     classNameSendIcon?: string;
 };
 ```
 
-- **onSend:** Callback invoked with text and/or files when the user sends.
-- **placeholder:** Input placeholder text.
-- **className:** Styles for the bar container.
-- **allowFiles:** Enables file selection/drag‑and‑drop if true.
-- **allowedFiles:** A comma-separated string of accepted file types for validation. This can include MIME types (e.g., ```application/json```), MIME globs (e.g., ```image/*```), or file extensions (e.g., ```.pdf```, ```.docx```).
-- **maxFiles:** The maximum number of files that can be attached in one message. If exceeded, the component will display an error.
-- **errorMessage:** An object containing custom string messages for file validation failures:
-    - **invalidType:** Custom message displayed when a file's type or extension is not allowed.
-    - **maxFiles:** Custom message displayed when the file limit is exceeded.
-- **classNameAttachIcon:** Styles for the attachment icon.
-- **classNameSendIcon:** Styles for the send icon.
+- **onSend:** Callback invoked with text and/or files when the user sends.  
+- **placeholder:** Input placeholder text.  
+- **className:** Styles for the bar container.  
+- **allowFiles:** Enables file selection/drag‑and‑drop if true.  
+- **allowedFiles:** A comma‑separated string of accepted file types for validation. Supports MIME types (e.g., `application/pdf`), MIME globs (e.g., `image/*`), or file extensions (e.g., `.jpg`, `.png`).  
+- **maxFiles:** Maximum number of files that can be attached in one message. If exceeded, the component will display an error.  
+- **maxFileSize:** Maximum size (in MB) allowed per file. Files larger than this will trigger an error.  
+- **errorMessage:** Object containing custom string messages for file validation failures:  
+  - **invalidType:** Message shown when a file’s type or extension is not allowed.  
+  - **maxFiles:** Message shown when the file limit is exceeded.  
+  - **maxSize:** Message shown when a file exceeds the maximum size.  
+- **classNameAttachIcon:** Styles for the attachment icon.  
+- **classNameSendIcon:** Styles for the send icon.  
 
 ### `ChatItem`
 

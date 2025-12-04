@@ -6,10 +6,12 @@ type MessageProps = {
     files?: { name: string; url: string; type: string }[];
     isMe: boolean;
     timestamp: Date;
+    status?: "sending" | "sent" | "delivered" | "read";
     classNameMe?: string;
     textColorMe?: string;
     classNameOther?: string;
     textColorOther?: string;
+    classNameRead?: string;
     className?: string;
 };
 
@@ -18,8 +20,10 @@ export const Message: React.FC<MessageProps> = ({
     files = [],
     isMe,
     timestamp,
+    status,
     classNameMe,
     classNameOther,
+    classNameRead,
     className,
 }) => {
     const time = timestamp.toLocaleTimeString([], {
@@ -93,7 +97,73 @@ export const Message: React.FC<MessageProps> = ({
             {text && <p className="whitespace-pre-wrap">{text}</p>}
 
             {/* Timestamp */}
-            <span className="block text-xs opacity-70 mt-1 text-right">{time}</span>
+            <div className="flex flex-row items-center gap-1 text-xs opacity-70 mt-1 justify-end">
+                <span>{time}</span>
+                {status && <div>
+                    {status == 'sending' && <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-clock-icon lucide-clock"
+                    >
+                        <path d="M12 6v6l4 2" />
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>}
+                    {status == 'sent' && <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-check-icon lucide-check"
+                    >
+                        <path d="M20 6 9 17l-5-5" />
+                    </svg>}
+                    {status == 'delivered' && <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-check-check-icon lucide-check-check"
+                    >
+                        <path d="M18 6 7 17l-5-5" />
+                        <path d="m22 10-7.5 7.5L13 16" />
+                    </svg>}
+                    {status == 'read' && <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={cn(
+                            "lucide lucide-check-check-icon lucide-check-check text-blue-600",
+                            classNameRead
+                        )}
+                    >
+                        <path d="M18 6 7 17l-5-5" />
+                        <path d="m22 10-7.5 7.5L13 16" />
+                    </svg>}
+                </div>}
+            </div>
         </div>
     );
 };

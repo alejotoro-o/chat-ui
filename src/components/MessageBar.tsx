@@ -8,9 +8,11 @@ type MessageBarProps = {
     allowFiles?: boolean;
     allowedFiles?: string,
     maxFiles?: number,
+    maxFileSize?: number,
     errorMessage?: {
-        invalidType: string,
-        maxFiles: string,
+        invalidType?: string,
+        maxFiles?: string,
+        maxSize?: string,
     },
     classNameAttachIcon?: string;
     classNameSendIcon?: string;
@@ -23,6 +25,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
     allowFiles = true,
     allowedFiles,
     maxFiles,
+    maxFileSize,
     errorMessage,
     classNameAttachIcon,
     classNameSendIcon
@@ -61,11 +64,6 @@ export const MessageBar: React.FC<MessageBarProps> = ({
     };
 
 
-    /**
-     * Validates incoming files against props (maxFiles, allowedFiles) and
-     * calls showNotification on failure.
-     * @returns an array of files that passed validation and can be added.
-     */
     const validateAndAddFiles = (incomingFiles: File[]): File[] => {
         if (!allowFiles) return [];
 
@@ -80,41 +78,62 @@ export const MessageBar: React.FC<MessageBarProps> = ({
             return incomingFiles.slice(0, maxFiles - currentTotal);
         }
 
-        // --- 2. Check file types and extensions ---
+        // --- 2. Setup size and type validation parameters ---
+        const maxBytes = maxFileSize ? maxFileSize * 1024 * 1024 : Infinity; // Convert MB to bytes
         const allowedTypes = allowedFiles ? allowedFiles.split(',').map(t => t.trim().toLowerCase()) : null;
-        if (!allowedTypes) return incomingFiles; // No restrictions
 
         const validFiles: File[] = [];
-        const invalidFiles: File[] = [];
+        let hadInvalidType = false;
+        let hadInvalidSize = false;
 
+        // Loop through incoming files for individual validation
         incomingFiles.forEach(file => {
-            const fileType = file.type.toLowerCase();
-            const fileName = file.name.toLowerCase();
-            // Get file extension including the dot, e.g., ".pdf"
-            const fileExtension = fileName.includes('.') ? '.' + fileName.split('.').pop() : '';
-
-            const isValid = allowedTypes.some(type => {
-                if (type.startsWith('.')) {
-                    // Case A: File extension check (e.g., .pdf)
-                    return fileExtension === type;
-                } else if (type.endsWith('/*')) {
-                    // Case B: MIME glob pattern check (e.g., image/*)
-                    const prefix = type.slice(0, -2);
-                    return fileType.startsWith(prefix);
-                } else {
-                    // Case C: Exact MIME type check (e.g., application/pdf)
-                    return fileType === type;
-                }
-            });
-
-            if (isValid) {
-                validFiles.push(file);
-            } else {
-                invalidFiles.push(file);
+            // --- A. Check file size ---
+            if (file.size > maxBytes) {
+                // If it fails size check, mark flag and skip to the next file
+                hadInvalidSize = true;
+                return;
             }
+
+            // --- B. Check file types and extensions ---
+            let isTypeValid = true;
+            if (allowedTypes) {
+                const fileType = file.type.toLowerCase();
+                const fileName = file.name.toLowerCase();
+                // Get file extension including the dot, e.g., ".pdf"
+                const fileExtension = fileName.includes('.') ? '.' + fileName.split('.').pop() : '';
+
+                isTypeValid = allowedTypes.some(type => {
+                    if (type.startsWith('.')) {
+                        // Case A: File extension check (e.g., .pdf)
+                        return fileExtension === type;
+                    } else if (type.endsWith('/*')) {
+                        // Case B: MIME glob pattern check (e.g., image/*)
+                        const prefix = type.slice(0, -2);
+                        return fileType.startsWith(prefix);
+                    } else {
+                        // Case C: Exact MIME type check (e.g., application/pdf)
+                        return fileType === type;
+                    }
+                });
+
+                if (!isTypeValid) {
+                    hadInvalidType = true;
+                    return; // Skip this file
+                }
+            }
+
+            // If it passed both size and type validation
+            validFiles.push(file);
         });
 
-        if (invalidFiles.length > 0) {
+        // --- 3. Show notifications for individual file errors ---
+        // Note: We prioritize showing the size error if both size and type errors occurred 
+        // across the batch, as size is often the more critical failure.
+        if (hadInvalidSize) {
+            const message = errorMessage?.maxSize || `One or more files exceed the maximum size of ${maxFileSize} MB.`;
+            showNotification(message);
+        } else if (hadInvalidType) {
             const message = errorMessage?.invalidType || `One or more files have invalid types. Allowed types: ${allowedFiles || 'all'}.`;
             showNotification(message);
         }
@@ -349,7 +368,7 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                     hidden
                     ref={fileInputRef}
                     onChange={handleFileChange}
-                    disabled={files.length == maxFiles}
+                    disabled={maxFiles !== undefined && files.length >= maxFiles}
                 />
 
 
@@ -359,10 +378,10 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                     className={cn(
                         "aspect-square h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer",
                         classNameAttachIcon,
-                        files.length == maxFiles ? "bg-gray-100 opacity-60" : ""
+                        maxFiles !== undefined && files.length >= maxFiles ? "bg-gray-100 opacity-60" : ""
                     )}
                     title="Attach Files"
-                    disabled={files.length == maxFiles}
+                    disabled={maxFiles !== undefined && files.length >= maxFiles}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
