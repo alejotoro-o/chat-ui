@@ -252,6 +252,12 @@ type MessageBarProps = {
     placeholder?: string;
     className?: string;
     allowFiles?: boolean;
+    allowedFiles?: string,
+    maxFiles?: number,
+    errorMessage?: {
+        invalidType: string,
+        maxFiles: string,
+    },
     classNameAttachIcon?: string;
     classNameSendIcon?: string;
 };
@@ -261,6 +267,11 @@ type MessageBarProps = {
 - **placeholder:** Input placeholder text.
 - **className:** Styles for the bar container.
 - **allowFiles:** Enables file selection/drag‑and‑drop if true.
+- **allowedFiles:** A comma-separated string of accepted file types for validation. This can include MIME types (e.g., ```application/json```), MIME globs (e.g., ```image/*```), or file extensions (e.g., ```.pdf```, ```.docx```).
+- **maxFiles:** The maximum number of files that can be attached in one message. If exceeded, the component will display an error.
+- **errorMessage:** An object containing custom string messages for file validation failures:
+    - **invalidType:** Custom message displayed when a file's type or extension is not allowed.
+    - **maxFiles:** Custom message displayed when the file limit is exceeded.
 - **classNameAttachIcon:** Styles for the attachment icon.
 - **classNameSendIcon:** Styles for the send icon.
 

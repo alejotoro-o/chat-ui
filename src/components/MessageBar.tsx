@@ -6,6 +6,12 @@ type MessageBarProps = {
     placeholder?: string;
     className?: string;
     allowFiles?: boolean;
+    allowedFiles?: string,
+    maxFiles?: number,
+    errorMessage?: {
+        invalidType: string,
+        maxFiles: string,
+    },
     classNameAttachIcon?: string;
     classNameSendIcon?: string;
 };
@@ -15,15 +21,107 @@ export const MessageBar: React.FC<MessageBarProps> = ({
     placeholder,
     className,
     allowFiles = true,
+    allowedFiles,
+    maxFiles,
+    errorMessage,
     classNameAttachIcon,
     classNameSendIcon
 }) => {
     const [value, setValue] = useState("");
     const [files, setFiles] = useState<File[]>([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [localError, setLocalError] = useState<string | null>(null); // State for transient errors
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const dragTimeout = useRef<number | null>(null);
+    const errorTimeoutRef = useRef<number | null>(null); // Ref for error timeout ID
+
+    /**
+     * Helper to show a transient notification and automatically clear it.
+     * This uses manual setTimeout management with a useRef to mimic useEffect cleanup.
+     */
+    const showNotification = (message: string) => {
+        // 1. Clear any previous running timeout
+        if (errorTimeoutRef.current) {
+            clearTimeout(errorTimeoutRef.current);
+            errorTimeoutRef.current = null;
+        }
+
+        // 2. Set the new error message
+        setLocalError(message);
+
+        // 3. Set new timeout and store its ID
+        const timeoutId = window.setTimeout(() => {
+            setLocalError(null);
+            errorTimeoutRef.current = null;
+        }, 3000);
+
+        errorTimeoutRef.current = timeoutId;
+    };
+
+
+    /**
+     * Validates incoming files against props (maxFiles, allowedFiles) and
+     * calls showNotification on failure.
+     * @returns an array of files that passed validation and can be added.
+     */
+    const validateAndAddFiles = (incomingFiles: File[]): File[] => {
+        if (!allowFiles) return [];
+
+        const currentTotal = files.length;
+        const potentialNewTotal = currentTotal + incomingFiles.length;
+
+        // --- 1. Check max file count ---
+        if (maxFiles && maxFiles > 0 && potentialNewTotal > maxFiles) {
+            const message = errorMessage?.maxFiles || `File limit exceeded. You can only attach a maximum of ${maxFiles} files.`;
+            showNotification(message);
+            // Only return files up to the limit if the current set allows it
+            return incomingFiles.slice(0, maxFiles - currentTotal);
+        }
+
+        // --- 2. Check file types and extensions ---
+        const allowedTypes = allowedFiles ? allowedFiles.split(',').map(t => t.trim().toLowerCase()) : null;
+        if (!allowedTypes) return incomingFiles; // No restrictions
+
+        const validFiles: File[] = [];
+        const invalidFiles: File[] = [];
+
+        incomingFiles.forEach(file => {
+            const fileType = file.type.toLowerCase();
+            const fileName = file.name.toLowerCase();
+            // Get file extension including the dot, e.g., ".pdf"
+            const fileExtension = fileName.includes('.') ? '.' + fileName.split('.').pop() : '';
+
+            const isValid = allowedTypes.some(type => {
+                if (type.startsWith('.')) {
+                    // Case A: File extension check (e.g., .pdf)
+                    return fileExtension === type;
+                } else if (type.endsWith('/*')) {
+                    // Case B: MIME glob pattern check (e.g., image/*)
+                    const prefix = type.slice(0, -2);
+                    return fileType.startsWith(prefix);
+                } else {
+                    // Case C: Exact MIME type check (e.g., application/pdf)
+                    return fileType === type;
+                }
+            });
+
+            if (isValid) {
+                validFiles.push(file);
+            } else {
+                invalidFiles.push(file);
+            }
+        });
+
+        if (invalidFiles.length > 0) {
+            const message = errorMessage?.invalidType || `One or more files have invalid types. Allowed types: ${allowedFiles || 'all'}.`;
+            showNotification(message);
+        }
+
+        return validFiles;
+    };
+
 
     const resizeToContent = () => {
         const el = textareaRef.current;
@@ -85,9 +183,25 @@ export const MessageBar: React.FC<MessageBarProps> = ({
             }
         }
         if (pastedFiles.length > 0) {
-            setFiles((prev) => [...prev, ...pastedFiles]);
-            e.preventDefault();
+            const validatedFiles = validateAndAddFiles(pastedFiles);
+            if (validatedFiles.length > 0) {
+                setFiles((prev) => [...prev, ...validatedFiles]);
+                e.preventDefault(); // Prevent default text paste if files were processed
+            }
         }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!allowFiles || !e.target.files) return;
+
+        const newFiles = Array.from(e.target.files!);
+        const validatedFiles = validateAndAddFiles(newFiles);
+
+        if (validatedFiles.length > 0) {
+            setFiles((prev) => [...prev, ...validatedFiles]);
+        }
+        // It's important to reset the input value so the same file can be selected again
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const removeFile = (index: number) => {
@@ -95,11 +209,11 @@ export const MessageBar: React.FC<MessageBarProps> = ({
     };
 
     // --- Drag & Drop Handlers ---
-    const dragTimeout = useRef<number | null>(null);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         if (!allowFiles) return;
         e.preventDefault();
+        e.stopPropagation();
 
         // cancel any pending "leave"
         if (dragTimeout.current) {
@@ -128,7 +242,10 @@ export const MessageBar: React.FC<MessageBarProps> = ({
 
         const droppedFiles = Array.from(e.dataTransfer.files);
         if (droppedFiles.length > 0) {
-            setFiles((prev) => [...prev, ...droppedFiles]);
+            const validatedFiles = validateAndAddFiles(droppedFiles);
+            if (validatedFiles.length > 0) {
+                setFiles((prev) => [...prev, ...validatedFiles]);
+            }
         }
     };
 
@@ -136,44 +253,51 @@ export const MessageBar: React.FC<MessageBarProps> = ({
     return (
         <div
             className={cn(
-                "m-2 flex flex-col gap-2 border border-gray-300 rounded-4xl bg-white shadow-sm",
-                isDragging && "border-blue-600 rounded-4xl bg-blue-100",
+                "m-2 flex flex-col gap-2 border border-gray-300 rounded-4xl bg-white shadow-lg transition-all duration-150 ease-in-out",
+                isDragging && "border-blue-500 ring-4 ring-blue-100 bg-blue-50",
                 className
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
         >
+            {/* Notification Bar */}
+            {localError && (
+                <div className="mx-4 mt-4 px-4 py-2 bg-red-50 border border-red-200 text-red-700 text-sm font-medium rounded-xl shadow-inner animate-in fade-in slide-in-from-top-4 transition-all duration-300 ease-in-out">
+                    {localError}
+                </div>
+            )}
+
             {/* Preview pills */}
             {files.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mx-4 mt-4 pb-2 border-b border-gray-200">
                     {files.map((file, idx) => {
                         const isImage = file.type.startsWith("image/");
                         return (
                             <div
                                 key={idx}
-                                className="relative flex items-center gap-2 border border-gray-400 rounded-lg p-1 bg-gray-100"
+                                className="relative flex items-center gap-2 border border-gray-300 rounded-xl px-2 py-1 bg-gray-50 shadow-sm"
                                 title={file.name}
                             >
                                 {isImage ? (
                                     <img
                                         src={URL.createObjectURL(file)}
                                         alt={file.name}
-                                        className="w-12 h-12 object-cover rounded"
+                                        className="w-10 h-10 object-cover rounded-lg"
                                     />
                                 ) : (
-                                    <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded">
+                                    <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
+                                            width="20"
+                                            height="20"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
                                             strokeWidth="2"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className="lucide lucide-file-text-icon lucide-file-text"
+                                            className="lucide lucide-file-text-icon text-gray-600"
                                         >
                                             <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
                                             <path d="M14 2v5a1 1 0 0 0 1 1h5" />
@@ -183,24 +307,24 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                                         </svg>
                                     </div>
                                 )}
-                                <span className="text-sm truncate max-w-[120px]">{file.name}</span>
+                                <span className="text-sm truncate max-w-[120px] text-gray-700">{file.name}</span>
                                 {/* Remove File Button */}
                                 <button
                                     type="button"
                                     onClick={() => removeFile(idx)}
-                                    className="absolute -top-1 -right-1 bg-black text-white rounded-full w-4 h-4 flex items-center justify-center text-xs cursor-pointer"
+                                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs cursor-pointer shadow-md transition-colors"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
+                                        width="12"
+                                        height="12"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className="lucide lucide-x-icon lucide-x"
+                                        className="lucide lucide-x-icon"
 
                                     >
                                         <path d="M18 6 6 18" />
@@ -216,24 +340,29 @@ export const MessageBar: React.FC<MessageBarProps> = ({
             {/* Input bar */}
             <form
                 onSubmit={handleSubmit}
-                className="p-2 flex flex-row gap-2"
+                className="p-3 flex flex-row gap-3 items-end"
             >
                 <input
                     type="file"
                     multiple
+                    accept={allowedFiles}
                     hidden
                     ref={fileInputRef}
-                    onChange={(e) => {
-                        if (!allowFiles || !e.target.files) return;
-                        setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
-                    }}
+                    onChange={handleFileChange}
+                    disabled={files.length == maxFiles}
                 />
 
 
                 {allowFiles && <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className={cn("aspect-square h-10 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer text-gray-600", classNameAttachIcon)}
+                    className={cn(
+                        "aspect-square h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer",
+                        classNameAttachIcon,
+                        files.length == maxFiles ? "bg-gray-100 opacity-60" : ""
+                    )}
+                    title="Attach Files"
+                    disabled={files.length == maxFiles}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -257,13 +386,14 @@ export const MessageBar: React.FC<MessageBarProps> = ({
                     onKeyDown={handleKeyDown}
                     onPaste={handlePaste}
                     rows={1}
-                    className="p-2 grow resize-none focus:outline-none overflow-y-auto max-h-40"
+                    className="p-2 grow resize-none focus:outline-none overflow-y-auto max-h-40 text-gray-800 bg-transparent"
                 />
 
                 {(value || files.length > 0) && (
                     <button
                         type="submit"
-                        className={cn("aspect-square h-10 self-end flex items-center justify-center rounded-full bg-black cursor-pointer text-white", classNameSendIcon)}
+                        className={cn("aspect-square h-10 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer text-white shadow-md", classNameSendIcon)}
+                        title="Send Message"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

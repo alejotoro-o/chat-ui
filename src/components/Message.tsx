@@ -90,7 +90,7 @@ export const Message: React.FC<MessageProps> = ({
             )}
 
             {/* Text message */}
-            {text && <p>{text}</p>}
+            {text && <p className="whitespace-pre-wrap">{text}</p>}
 
             {/* Timestamp */}
             <span className="block text-xs opacity-70 mt-1 text-right">{time}</span>

@@ -112,6 +112,12 @@ function App() {
                 </MessageList>
                 <MessageBar
                     onSend={(payload) => sendMessage(payload, "UserA")} // User A sends
+                    allowedFiles="image/*,.pdf"
+                    maxFiles={2}
+                    errorMessage={{
+                        invalidType: "This file type is not allowed",
+                        maxFiles: "Max files reached"
+                    }}
                 />
             </Chat>
 
