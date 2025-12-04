@@ -1,6 +1,6 @@
 {
     "name": "@alejotoro-o/chat-ui",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "This package provides a set of frontend components designed to help you quickly build modern, responsive chat interfaces. It focuses on flexibility, developer experience, and seamless integration with any backend.",
     "keywords": [],
     "license": "MIT",
@@ -25,8 +25,8 @@
         "preview": "vite preview"
     },
     "peerDependencies": {
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0"
+        "react": "^19.2.1",
+        "react-dom": "^19.2.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",
