@@ -8,7 +8,7 @@ type ChatListProps = {
 
 export const ChatList: React.FC<ChatListProps> = ({ children, className }) => {
     return (
-        <div className={cn("flex flex-col gap-2", className)}>
+        <div className={cn("flex flex-col gap-2 basis-0 min-w-0", className)}>
             {children}
         </div>
     )

@@ -10,6 +10,7 @@ type ChatHeaderOption = {
 type ChatHeaderProps = {
     name: string;
     onClick?: () => void;
+    avatar?: boolean;
     imageUrl?: string;
     status?: string;
     className?: string;
@@ -19,6 +20,7 @@ type ChatHeaderProps = {
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
     name,
     onClick,
+    avatar,
     imageUrl,
     status,
     className,
@@ -28,13 +30,33 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     const avatarBlock = (
         <div className="flex flex-row gap-5 items-center h-20 py-4">
-            {imageUrl && (
-                <div className="aspect-square h-full rounded-full overflow-hidden border border-gray-300">
-                    <img
-                        src={imageUrl}
-                        alt={name}
-                        className="w-full h-full object-cover"
-                    />
+            {avatar && (
+                <div className="h-full max-h-14 aspect-square rounded-full overflow-hidden border border-gray-300 flex items-center justify-center shrink-0 bg-gray-200">
+                    {imageUrl ? (
+                        <img
+                            src={imageUrl}
+                            alt={name}
+                            className="size-full object-cover"
+                        />
+                    ) : (
+                        <span className="text-sm font-medium text-gray-700">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-user-icon lucide-user size-full object-cover"
+                            >
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </span>
+                    )}
                 </div>
             )}
             <div className="grid">

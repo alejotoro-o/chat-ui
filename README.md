@@ -18,7 +18,7 @@ This package provides a set of **frontend components** designed to help you quic
 
 Install the package via npm:
 
-```sh
+```bash
 npm install @alejotoro-o/chat-ui
 ```
 
@@ -26,7 +26,7 @@ npm install @alejotoro-o/chat-ui
 
 - **React 19+** and **React DOM 19+** are required as peer dependencies. Make sure your project is using compatible versions:
 
-```sh
+```bash
 npm install react@^19.1.0 react-dom@^19.1.0
 ```
 
@@ -44,7 +44,7 @@ const config = {
     './src/**/*.{ts,tsx}',
 
     // Include chat-ui components
-    './node_modules/@alejotoro-o/chat-ui/*.{ts,tsx}',
+    './node_modules/@alejotoro-o/chat-ui/dist/*.{js,jsx,ts,tsx}',
   ],
   // Rest of your Tailwind config...
 };
@@ -152,7 +152,50 @@ const clearChat = () => {
 
 - Override styles using Tailwind classes or custom CSS.  
 - Extend functionality by passing callbacks (`onSend`, `onClick`, etc.) to integrate with any backend.  
-- File support is built in — drag‑and‑drop, paste, or select files directly in the message bar.
+- File support is built in, drag‑and‑drop, paste, or select files directly in the message bar.
+
+
+## Launch Development Environment
+
+The development environment provides an interactive playground where you can explore, preview, and test all chat UI components in real time. It’s designed to make iteration easy, so you can quickly validate layout changes, props, and new features such as avatars, unread badges, and truncation behavior.
+
+![Development Environment Screenshot](./dev_screenshot.jpg)
+
+### Steps to get started
+
+1. **Clone the repository**  
+
+   ```bash
+   git clone https://github.com/alejotoro-o/chat-ui.git
+   ```
+
+2. **Navigate into the project folder**  
+
+   ```bash
+   cd chat-ui
+   ```
+
+3. **Install dependencies**  
+
+   ```bash
+   npm install
+   ```
+
+4. **Run the development server** 
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Open the environment in your browser:** By default, the server runs at [http://localhost:5173/](http://localhost:5173/). You’ll see the component gallery with live previews.
+
+### What you can do here
+
+- Browse all available components side by side.
+- Test components props.
+- Validate responsive behavior (flex layouts, truncation, scrollable lists).
+- Experiment with designs and Tailwind classes.
+
 
 ## Components Overview
 
@@ -186,6 +229,7 @@ type ChatHeaderOption = {
 type ChatHeaderProps = {
     name: string;
     onClick?: () => void;
+    avatar?: boolean;
     imageUrl?: string;
     status?: string;
     className?: string;
@@ -195,6 +239,10 @@ type ChatHeaderProps = {
 
 - **name:** Display name of the chat or contact.
 - **onClick:** Optional callback to perform an action when the user’s profile is clicked.
+- **avatar**: Enables/disables avatar rendering.  
+    - If `true` and `imageUrl` is provided, the avatar image is shown.  
+    - If `true` and `imageUrl` is not provided, a fallback avatar is displayed.  
+    - If `false`, no avatar is rendered.
 - **imageUrl:** Optional avatar image source URL.
 - **status:** Presence text (e.g., “Online”, “Typing…”).
 - **className:** Optional styles for the header container.
@@ -225,10 +273,10 @@ type MessageProps = {
 - **isMe:** Whether the message belongs to the current user.  
 - **timestamp:** Date object used for display and grouping.  
 - **status:** Current delivery state of the message.  
-  - `"sending"`: Message is being sent.  
-  - `"sent"`: Message successfully sent.  
-  - `"delivered"`: Message has been received by the recipient.  
-  - `"read"`: Recipient has opened the chat and seen the message.  
+    - `"sending"`: Message is being sent.  
+    - `"sent"`: Message successfully sent.  
+    - `"delivered"`: Message has been received by the recipient.  
+    - `"read"`: Recipient has opened the chat and seen the message.  
 - **classNameMe / textColorMe:** Styles for the “me” bubble and text.  
 - **classNameOther / textColorOther:** Styles for the “other” bubble and text.  
 - **classNameRead:** Styles applied when the message status is `"read"`.  
@@ -281,9 +329,9 @@ type MessageBarProps = {
 - **maxFiles:** Maximum number of files that can be attached in one message. If exceeded, the component will display an error.  
 - **maxFileSize:** Maximum size (in MB) allowed per file. Files larger than this will trigger an error.  
 - **errorMessage:** Object containing custom string messages for file validation failures:  
-  - **invalidType:** Message shown when a file’s type or extension is not allowed.  
-  - **maxFiles:** Message shown when the file limit is exceeded.  
-  - **maxSize:** Message shown when a file exceeds the maximum size.  
+    - **invalidType:** Message shown when a file’s type or extension is not allowed.  
+    - **maxFiles:** Message shown when the file limit is exceeded.  
+    - **maxSize:** Message shown when a file exceeds the maximum size.  
 - **classNameAttachIcon:** Styles for the attachment icon.  
 - **classNameSendIcon:** Styles for the send icon.  
 
@@ -304,20 +352,33 @@ type ChatItemProps = {
     lastMessage: string;
     date: Date;
     onClick: (id: string) => void;
+    avatar?: boolean,
     imageUrl?: string;
+    unreadCount?: number;
+    options?: ChatItemOptions[];
+    classNameOptions?: string;
+    classNameUnreadCount?: string;
+    classNameUnreadDate?: string;
     className?: string;
-    options?: ChatItemOptions[]
 };
 ```
 
-- **id:** Unique identifier passed to `onClick`.
-- **name:** Chat or contact name.
-- **lastMessage:** Preview of the most recent message.
-- **date:** Date of the last activity.
-- **onClick:** Handler invoked when the item is clicked.
-- **imageUrl:** Optional avatar image.
-- **className:** Styles for the list item.
-- **options:** Array of actions for the overflow menu.
+- **id**: Unique identifier passed to `onClick`.
+- **name**: Chat or contact name.
+- **lastMessage**: Preview of the most recent message.
+- **date**: Date of the last activity.
+- **onClick**: Handler invoked when the item is clicked.
+- **avatar**: Enables/disables avatar rendering.  
+    - If `true` and `imageUrl` is provided, the avatar image is shown.  
+    - If `true` and `imageUrl` is not provided, a fallback avatar is displayed.  
+    - If `false`, no avatar is rendered.
+- **imageUrl**: Optional avatar image URL.
+- **unreadCount**: Number of unread messages. If greater than zero, a badge is displayed.
+- **options**: Array of actions for the overflow menu (e.g., clear chat, delete chat).
+- **className**: Custom styles for the list item wrapper.
+- **classNameOptions**: Custom styles applied to the options menu container and items.
+- **classNameUnreadCount**: Custom styles applied to the unread badge (circle with count).
+- **classNameUnreadDate**: Custom styles applied to the date element when there are unread messages.
 
 ### `ChatList`
 

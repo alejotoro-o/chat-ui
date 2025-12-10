@@ -50,8 +50,8 @@ function App() {
     };
 
     const chats = [
-        { name: "User A", lastMessage: "Last Message" },
-        { name: "User B", lastMessage: "Hey, are we still meeting later?" },
+        { name: "User A", lastMessage: "Last Message", unreadCount: 10, avatar: true, imageUrl: "https://picsum.photos/id/177/200" },
+        { name: "User B", lastMessage: "Hey, are we still meeting later?", unreadCount: 2, avatar: true },
         { name: "User C", lastMessage: "Sure, see you at 5!" },
         { name: "User D", lastMessage: "This is a really long message. This is a really long message. This is a really long message." },
     ];
@@ -63,7 +63,7 @@ function App() {
     return (
         <div className="flex flex-row gap-4 h-screen">
             {/* Chat list */}
-            <ChatList className="flex-1">
+            <ChatList className="flex-1 p-1">
                 {chats.map((chat, idx) => (
                     <ChatItem
                         key={idx}
@@ -72,6 +72,9 @@ function App() {
                         lastMessage={chat.lastMessage}
                         date={new Date()}
                         onClick={openChat}
+                        avatar={chat.avatar}
+                        imageUrl={chat.imageUrl}
+                        unreadCount={chat.unreadCount}
                         options={[
                             { label: "Clear Chat", onClick: clearChat },
                             { label: "Delete Chat", onClick: deleteChat, destructive: true },
@@ -86,6 +89,7 @@ function App() {
                     name="User A"
                     onClick={() => console.log('User A clicked')}
                     status="Online"
+                    avatar={true}
                     options={[
                         { label: "Clear Chat", onClick: clearChat },
                         { label: "Delete Chat", onClick: deleteChat, destructive: true },
@@ -128,7 +132,7 @@ function App() {
             <Chat className="flex-1">
                 <ChatHeader
                     name="User B"
-                    status="Online"
+                    status="Last 01/01/2025"
                     options={[
                         { label: "Clear Chat", onClick: clearChat },
                         { label: "Delete Chat", onClick: deleteChat, destructive: true },
