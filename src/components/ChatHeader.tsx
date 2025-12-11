@@ -31,7 +31,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     const avatarBlock = (
         <div className="flex flex-row gap-5 items-center h-20 py-4">
             {avatar && (
-                <div className="h-full max-h-14 aspect-square rounded-full overflow-hidden border border-gray-300 flex items-center justify-center shrink-0 bg-gray-200">
+                <div className="size-14 max-w-14 max-h-14 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center shrink-0 bg-gray-200">
                     {imageUrl ? (
                         <img
                             src={imageUrl}

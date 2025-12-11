@@ -52,7 +52,7 @@ export const ChatItem: React.FC<ChatItemProps> = ({
             onClick={() => onClick(id)}
         >
             {avatar && (
-                <div className="h-full max-h-14 aspect-square rounded-full overflow-hidden border border-gray-300 flex items-center justify-center shrink-0 bg-gray-200">
+                <div className="size-14 max-w-14 max-h-14 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center shrink-0 bg-gray-200">
                     {imageUrl ? (
                         <img
                             src={imageUrl}
@@ -82,7 +82,7 @@ export const ChatItem: React.FC<ChatItemProps> = ({
             )}
             <div className="flex flex-col flex-1 min-w-0 basis-0">
                 <div className="flex flex-row gap-5 items-center">
-                    <span className="font-medium grow">{name}</span>
+                    <span className="font-medium grow whitespace-nowrap truncate">{name}</span>
                     <span className={cn(
                         "opacity-70 whitespace-nowrap",
                         unreadCount && unreadCount > 0 && `text-blue-600 ${classNameUnreadDate}`
