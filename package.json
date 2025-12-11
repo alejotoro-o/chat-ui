@@ -23,7 +23,8 @@
         "dev": "vite",
         "build": "tsup",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "prepublishOnly": "npm run build"
     },
     "peerDependencies": {
         "react": "^19.2.1",
