@@ -50,8 +50,8 @@ function App() {
     };
 
     const chats = [
-        { name: "User A", lastMessage: "Last Message", unreadCount: 10, avatar: true, imageUrl: "https://picsum.photos/id/177/200" },
-        { name: "User B", lastMessage: "Hey, are we still meeting later?", unreadCount: 2, avatar: true },
+        { name: "User A", lastMessage: "Last Message", lastMessageStatus: "read" as const, unreadCount: 10, avatar: true, imageUrl: "https://picsum.photos/id/177/200" },
+        { name: "User B", lastMessage: "Hey, are we still meeting later?", lastMessageStatus: "sent" as const, unreadCount: 2, avatar: true },
         { name: "User C", lastMessage: "Sure, see you at 5!" },
         { name: "User D", lastMessage: "This is a really long message. This is a really long message. This is a really long message." },
     ];
@@ -70,6 +70,7 @@ function App() {
                         id={chat.name}
                         name={chat.name}
                         lastMessage={chat.lastMessage}
+                        lastMessageStatus={chat.lastMessageStatus}
                         date={new Date()}
                         onClick={openChat}
                         avatar={chat.avatar}

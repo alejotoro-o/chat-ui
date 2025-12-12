@@ -350,12 +350,14 @@ type ChatItemProps = {
     id: string;
     name: string;
     lastMessage: string;
+    lastMessageStatus?: "sending" | "sent" | "delivered" | "read";
     date: Date;
     onClick: (id: string) => void;
     avatar?: boolean,
     imageUrl?: string;
     unreadCount?: number;
     options?: ChatItemOptions[];
+    classNameRead?: string;
     classNameOptions?: string;
     classNameUnreadCount?: string;
     classNameUnreadDate?: string;
@@ -366,6 +368,11 @@ type ChatItemProps = {
 - **id**: Unique identifier passed to `onClick`.
 - **name**: Chat or contact name.
 - **lastMessage**: Preview of the most recent message.
+- **status:** Current delivery state of the last message sent.  
+    - `"sending"`: Message is being sent.  
+    - `"sent"`: Message successfully sent.  
+    - `"delivered"`: Message has been received by the recipient.  
+    - `"read"`: Recipient has opened the chat and seen the message.
 - **date**: Date of the last activity.
 - **onClick**: Handler invoked when the item is clicked.
 - **avatar**: Enables/disables avatar rendering.  
@@ -375,10 +382,11 @@ type ChatItemProps = {
 - **imageUrl**: Optional avatar image URL.
 - **unreadCount**: Number of unread messages. If greater than zero, a badge is displayed.
 - **options**: Array of actions for the overflow menu (e.g., clear chat, delete chat).
-- **className**: Custom styles for the list item wrapper.
+- **classNameRead:** Custom styles applied to the `read` status in the last message sent.
 - **classNameOptions**: Custom styles applied to the options menu container and items.
 - **classNameUnreadCount**: Custom styles applied to the unread badge (circle with count).
 - **classNameUnreadDate**: Custom styles applied to the date element when there are unread messages.
+- **className**: Custom styles for the list item wrapper.
 
 ### `ChatList`
 

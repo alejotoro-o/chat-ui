@@ -13,12 +13,14 @@ type ChatItemProps = {
     id: string;
     name: string;
     lastMessage: string;
+    lastMessageStatus?: "sending" | "sent" | "delivered" | "read";
     date: Date;
     onClick: (id: string) => void;
     avatar?: boolean,
     imageUrl?: string;
     unreadCount?: number;
     options?: ChatItemOptions[];
+    classNameRead?: string;
     classNameOptions?: string;
     classNameUnreadCount?: string;
     classNameUnreadDate?: string;
@@ -29,12 +31,14 @@ export const ChatItem: React.FC<ChatItemProps> = ({
     id,
     name,
     lastMessage,
+    lastMessageStatus,
     date,
     onClick,
     avatar,
     imageUrl,
     unreadCount,
     options,
+    classNameRead,
     classNameOptions,
     classNameUnreadCount,
     classNameUnreadDate,
@@ -90,9 +94,75 @@ export const ChatItem: React.FC<ChatItemProps> = ({
                         {formatDate(date)}
                     </span>
                 </div>
-                <div className="flex flex-row gap-5 items-center">
+                <div className="flex flex-row gap-1 items-center">
+                    {/* Last Message status if it is from the other participant */}
+                    {lastMessageStatus && <div>
+                        {lastMessageStatus == 'sending' && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-clock-icon lucide-clock"
+                        >
+                            <path d="M12 6v6l4 2" />
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>}
+                        {lastMessageStatus == 'sent' && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-check-icon lucide-check"
+                        >
+                            <path d="M20 6 9 17l-5-5" />
+                        </svg>}
+                        {lastMessageStatus == 'delivered' && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="lucide lucide-check-check-icon lucide-check-check"
+                        >
+                            <path d="M18 6 7 17l-5-5" />
+                            <path d="m22 10-7.5 7.5L13 16" />
+                        </svg>}
+                        {lastMessageStatus == 'read' && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={cn(
+                                "lucide lucide-check-check-icon lucide-check-check text-blue-600",
+                                classNameRead
+                            )}
+                        >
+                            <path d="M18 6 7 17l-5-5" />
+                            <path d="m22 10-7.5 7.5L13 16" />
+                        </svg>}
+                    </div>}
+                    {/* Message and options */}
                     <span className="min-w-0 opacity-70 text-sm truncate grow">{lastMessage}</span>
-                    <div className="flex flex-row gap-5 items-center ms-auto">
+                    <div className="flex flex-row gap-5 items-center ms-4">
                         {unreadCount && unreadCount > 0 && (
                             <div className={cn(
                                 "size-7 rounded-full text-white bg-blue-600/70 flex items-center justify-center text-sm font-medium",
