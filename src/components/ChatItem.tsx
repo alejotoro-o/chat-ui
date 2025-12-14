@@ -163,7 +163,7 @@ export const ChatItem: React.FC<ChatItemProps> = ({
                     {/* Message and options */}
                     <span className="min-w-0 opacity-70 text-sm truncate grow">{lastMessage}</span>
                     <div className="flex flex-row gap-5 items-center ms-4">
-                        {unreadCount && unreadCount > 0 && (
+                        {typeof unreadCount == 'number' && unreadCount > 0 && (
                             <div className={cn(
                                 "size-7 rounded-full text-white bg-blue-600/70 flex items-center justify-center text-sm font-medium",
                                 classNameUnreadCount
