@@ -26,9 +26,10 @@ export const Message: React.FC<MessageProps> = ({
     classNameRead,
     className,
 }) => {
-    const time = timestamp.toLocaleTimeString([], {
-        hour: "2-digit",
+    const time = timestamp.toLocaleTimeString("en-US", {
+        hour: "numeric",
         minute: "2-digit",
+        hour12: true,
     });
 
     return (
